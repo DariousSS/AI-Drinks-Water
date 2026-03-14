@@ -1,82 +1,22 @@
-let font;
-let spacing;
-let alpha;
-let pixelSize;
-
-let baseSpacing;
-let basePixelSize;
-let baseAlpha;
-
-let waterLevel = 1.0;
-
-function preload() {
-  font = loadFont("PlayfairDisplay-Italic-VariableFont_wght.ttf");
-}
-
-function setup() {
-  createCanvas(windowWidth, windowHeight);
-  rectMode(CENTER);
-  noStroke();
-  pixelDensity(1);
-
-  baseSpacing = random(30, 120);
-  baseAlpha = random(40, 255);
-  basePixelSize = int(random(10, 40));
-
-  spacing = baseSpacing;
-  alpha = baseAlpha;
-  pixelSize = basePixelSize;
-}
-
-function windowResized() {
-  resizeCanvas(windowWidth, windowHeight);
-}
-
-function draw() {
-  background(250);
-
-  textAlign(CENTER, CENTER);
-  textFont(font);
-  textSize(64);
-  fill(126, 217, 237, alpha);
-
-  for (let x = 0; x <= width; x += spacing) {
-    for (let y = 0; y <= height; y += spacing) {
-      text("H2O", x, y);
-    }
-  }
-
-  loadPixels();
-  
-  for (let y = 0; y < height; y += pixelSize) {
-    for (let x = 0; x < width; x += pixelSize) {
-      let index = (x + y * width) * 4;
-      let r = pixels[index];
-      let g = pixels[index + 1];
-      let b = pixels[index + 2];
-      
-      let blueFactor = waterLevel;
-      fill(r * blueFactor, g * blueFactor, b, 120);
-      rect(x, y, pixelSize, pixelSize);
-    }
-  }
-}
-
-function mousePressed() {
-  waterLevel -= 0.05;
-  if (waterLevel < 0) waterLevel = 0;
-
-  baseSpacing = random(30, 120);
-  baseAlpha = random(40, 255);
-  basePixelSize = int(random(10, 40));
-
-  spacing = baseSpacing;
-  pixelSize = basePixelSize;
-  alpha = baseAlpha;
-}
-
-function mouseDragged() {
-  let offset = map(mouseX, 0, width, -20, 20);
-  spacing = max(10, baseSpacing + offset * 0.5);
-  pixelSize = max(5, basePixelSize + offset * 0.1);
-}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI Drinks Water</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        overflow: hidden;
+        background: #fafafa;
+      }
+    </style>
+  </head>
+  <body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/p5.min.js"></script>
+    <script src="sketch.js"></script>
+  </body>
+</html>
