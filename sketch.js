@@ -1,87 +1,95 @@
 let font;
+
+let homeX = [];
+let homeY = [];
+let x = [];
+let y = [];
+let vx = [];
+let vy = [];
+let sizes = [];
+
 let spacing;
 let alpha;
-let pixelSize;
-
-let baseSpacing;
-let basePixelSize;
-let baseAlpha;
-
-let waterLevel = 1.0;
-
-let letterAlpha = [];
 
 function preload() {
   font = loadFont("PlayfairDisplay-Italic-VariableFont_wght.ttf");
 }
 
 function setup() {
-  rectMode(CENTER);
-  noStroke();
   createCanvas(windowWidth, windowHeight);
-  pixelDensity(1);
+  pixelDensity(1 / 5);
+  noStroke();
+  textAlign(CENTER, CENTER);
+  textFont(font);
+  generateLetters();
+}
 
-  spacing = random(30, 120);
-  alpha = random(40, 255);
-  pixelSize = random(4, 40);
+function generateLetters() {
+  homeX = [];
+  homeY = [];
+  x = [];
+  y = [];
+  vx = [];
+  vy = [];
+  sizes = [];
+
+  spacing = random(20, 300);
+
+  let minSpacing = sqrt((width * height) / 2500);
+  if (spacing < minSpacing) spacing = minSpacing;
+
+  alpha = random(60, 220);
+
+  let baseSize = spacing * random(0.5, 0.95);
+
+  for (let px = spacing / 2; px < width; px += spacing) {
+    for (let py = spacing / 2; py < height; py += spacing) {
+      homeX.push(px);
+      homeY.push(py);
+      x.push(px);
+      y.push(py);
+      vx.push(0);
+      vy.push(0);
+      sizes.push(baseSize);
+    }
+  }
 }
 
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
+  generateLetters();
 }
 
 function draw() {
   background(250);
 
-  textAlign(CENTER);
-  textFont(font);
-  textSize(64);
-  fill(126, 217, 237, alpha);
+  for (let i = 0; i < x.length; i++) {
+    let d = dist(x[i], y[i], mouseX, mouseY);
 
-  for (let x = 0; x < width; x += spacing) {
-    for (let y = 0; y < height; y += spacing) {
-      text("H2O", x, y);
+    if (d < 120 && d > 0) {
+      let force = (1 - d / 120) * 18;
+      vx[i] += ((x[i] - mouseX) / d) * force;
+      vy[i] += ((y[i] - mouseY) / d) * force;
     }
-  }
 
-  loadPixels();
+    vx[i] += (homeX[i] - x[i]) * 0.06;
+    vy[i] += (homeY[i] - y[i]) * 0.06;
 
-  for (let y = 0; y < height; y += pixelSize) {
-    for (let x = 0; x < width; x += pixelSize) {
-      let index = (x + y * width) * 4;
+    vx[i] *= 0.75;
+    vy[i] *= 0.75;
 
-      let r = pixels[index];
-      let g = pixels[index + 1];
-      let b = pixels[index + 2];
-      let a = pixels[index + 3];
+    x[i] += vx[i];
+    y[i] += vy[i];
 
-      let blueFactor = waterLevel;
+    let displacement = dist(x[i], y[i], homeX[i], homeY[i]);
+    let a = map(displacement, 0, 150, alpha, alpha * 0.3);
 
-      fill(r * blueFactor, g * blueFactor, b, 120);
-      rect(x, y, pixelSize, pixelSize);
-    }
+    textSize(sizes[i]);
+    fill(126, 217, 237, a);
+    text("H2O", x[i], y[i]);
   }
 }
 
 function mousePressed() {
-  waterLevel -= 0.02;
-
-  if (waterLevel < 0) {
-    waterLevel = 0;
-  }
-
-  baseSpacing = random(30, 120);
-  baseAlpha = random(40, 255);
-  basePixelSize = int(random(4, 40));
-
-  spacing = baseSpacing;
-  pixelSize = basePixelSize;
-  alpha = baseAlpha;
-}
-
-function mouseDragged() {
-  let offset = map(mouseX, 0, width, -20, 20);
-
-  spacing = baseSpacing + offset * 0.5;
-  pixelSize = basePixelSize + offset * 0.1;
+  generateLetters();
 }
