@@ -33,14 +33,16 @@ function generateLetters() {
   vy = [];
   sizes = [];
 
-  spacing = random(20, 300);
+  spacing = random(20, 120);
 
-  let minSpacing = sqrt((width * height) / 2500);
+  let minSpacing = sqrt((width * height) / 5000);
   if (spacing < minSpacing) spacing = minSpacing;
 
   alpha = random(60, 220);
 
-  let baseSize = spacing * random(0.5, 0.95);
+  // 粒子少（spacing大）时字小清晰，粒子多（spacing小）时字大像素感强
+  let sizeFactor = map(spacing, 20, 120, 1.4, 0.45);
+  let baseSize = spacing * sizeFactor;
 
   for (let px = spacing / 2; px < width; px += spacing) {
     for (let py = spacing / 2; py < height; py += spacing) {
