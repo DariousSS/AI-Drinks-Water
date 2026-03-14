@@ -1,32 +1,82 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>AI Drinks Water</title>
-  <script src="https://cdnjs.cloudflare.com"></script>
+let font;
+let spacing;
+let alpha;
+let pixelSize;
 
+let baseSpacing;
+let basePixelSize;
+let baseAlpha;
 
+let waterLevel = 1.0;
 
-  <style>
-    body {
-      font-family: sans-serif;
-      text-align: center;
-      margin: 0;
-      padding: 20px;
+function preload() {
+  font = loadFont("PlayfairDisplay-Italic-VariableFont_wght.ttf");
+}
+
+function setup() {
+  createCanvas(windowWidth, windowHeight);
+  rectMode(CENTER);
+  noStroke();
+  pixelDensity(1);
+
+  baseSpacing = random(30, 120);
+  baseAlpha = random(40, 255);
+  basePixelSize = int(random(10, 40));
+
+  spacing = baseSpacing;
+  alpha = baseAlpha;
+  pixelSize = basePixelSize;
+}
+
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
+}
+
+function draw() {
+  background(250);
+
+  textAlign(CENTER, CENTER);
+  textFont(font);
+  textSize(64);
+  fill(126, 217, 237, alpha);
+
+  for (let x = 0; x <= width; x += spacing) {
+    for (let y = 0; y <= height; y += spacing) {
+      text("H2O", x, y);
     }
-    canvas {
-      display: block;
-      margin: 20px auto;
-      border: 1px solid #ccc;
+  }
+
+  loadPixels();
+  
+  for (let y = 0; y < height; y += pixelSize) {
+    for (let x = 0; x < width; x += pixelSize) {
+      let index = (x + y * width) * 4;
+      let r = pixels[index];
+      let g = pixels[index + 1];
+      let b = pixels[index + 2];
+      
+      let blueFactor = waterLevel;
+      fill(r * blueFactor, g * blueFactor, b, 120);
+      rect(x, y, pixelSize, pixelSize);
     }
-  </style>
-</head>
-<body>
+  }
+}
 
-  <h1>AI Drinks Water</h1>
-  <p>This project explores the hidden water consumption behind AI systems.</p>
+function mousePressed() {
+  waterLevel -= 0.05;
+  if (waterLevel < 0) waterLevel = 0;
 
-  <script src="sketch.js"></script>
+  baseSpacing = random(30, 120);
+  baseAlpha = random(40, 255);
+  basePixelSize = int(random(10, 40));
 
-</body>
-</html>
+  spacing = baseSpacing;
+  pixelSize = basePixelSize;
+  alpha = baseAlpha;
+}
+
+function mouseDragged() {
+  let offset = map(mouseX, 0, width, -20, 20);
+  spacing = max(10, baseSpacing + offset * 0.5);
+  pixelSize = max(5, basePixelSize + offset * 0.1);
+}
